@@ -4,8 +4,9 @@
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
 //#define ILI9488_DRIVER
+
 #ifdef TFTILI9341
-  #define ILI9341_DRIVER       // Generic driver for common displays
+  //#define ILI9341_2_DRIVER       // Generic driver for common displays
   #define SCREEN_WIDTH 320
   #define SCREEN_HEIGHT 240
   #define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
@@ -13,8 +14,11 @@
   #define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if 
   #define SCREEN_WIDTH 480
   #define SCREEN_HEIGHT 320
-  #define TOUCH_CS 21     // Chip select pin (T_CS) of touch screen
+  #define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
 #endif
+//#define TFT_WIDTH  SCREEN_WIDTH // ST7789 240 x 240 and 240 x 320
+//#define TFT_HEIGHT SCREEN_HEIGHT // ST7789 240 x 320
+
 #include <TFT_eSPI.h>
 #include <lvgl.h>
 
@@ -79,43 +83,167 @@ void touchscreen_read(lv_indev_t * indev, lv_indev_data_t * data) {
   }
 }
 
-int btn1_count = 0;
+
 // Callback that is triggered when btn1 is clicked
 static void event_handler_btn1(lv_event_t * e) {
   lv_event_code_t code = lv_event_get_code(e);
   if(code == LV_EVENT_CLICKED) {
-    btn1_count++;
-    Serial.print("clicked");
+   
+    Serial.print("clicked1");
     
-    LV_LOG_USER("Button clicked %d", (int)btn1_count);
+  }
+}
+// Callback that is triggered when btn1 is clicked
+static void event_handler_btn2(lv_event_t * e) {
+  lv_event_code_t code = lv_event_get_code(e);
+  if(code == LV_EVENT_CLICKED) {
+    Serial.print("clicked2");
+    
+  }
+}
+// Callback that is triggered when btn1 is clicked
+static void event_handler_btn3(lv_event_t * e) {
+  lv_event_code_t code = lv_event_get_code(e);
+  if(code == LV_EVENT_CLICKED) {
+    Serial.print("clicked3");
+    
+  }
+}
+// Callback that is triggered when btn1 is clicked
+static void event_handler_btn4(lv_event_t * e) {
+  lv_event_code_t code = lv_event_get_code(e);
+  if(code == LV_EVENT_CLICKED) {
+  
+    Serial.print("clicked4");
+    
   }
 }
 
-// Callback that is triggered when btn2 is clicked/toggled
-static void event_handler_btn2(lv_event_t * e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
-  if(code == LV_EVENT_VALUE_CHANGED) {
-    LV_UNUSED(obj);
-    LV_LOG_USER("Toggled %s", lv_obj_has_state(obj, LV_STATE_CHECKED) ? "on" : "off");
-  }
-}
 
 
 
 void lv_create_main_gui(void) {
+    static lv_style_t screen_style;
+  lv_style_init(&screen_style);
+
+   lv_color_t screen_color = lv_color_hex(0xEBEFF3);  // Color #EBEFF3
+  lv_style_set_bg_color(&screen_style, screen_color);
+
+  lv_obj_t * screen = lv_scr_act();
+  lv_obj_add_style(screen, &screen_style, 0);
+   /*Init the style for the default state*/
+    static lv_style_t style;
+    lv_style_init(&style);
+  lv_style_set_border_color(&style, lv_color_white());
+  lv_style_set_border_width(&style, 5); 
+  lv_style_set_radius(&style, 10); 
+    
+
+    lv_style_set_bg_opa(&style, LV_OPA_100);
+    lv_style_set_bg_color(&style, lv_palette_main(LV_PALETTE_BLUE));
+    lv_style_set_bg_grad_color(&style, lv_palette_darken(LV_PALETTE_BLUE, 2));
+    lv_style_set_bg_grad_dir(&style, LV_GRAD_DIR_VER);
+
+    lv_style_set_border_opa(&style, LV_OPA_40);
+    lv_style_set_border_width(&style, 2);
+    lv_style_set_border_color(&style, lv_palette_main(LV_PALETTE_GREY));
+
+    lv_style_set_shadow_width(&style, 8);
+    lv_style_set_shadow_color(&style, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_set_shadow_offset_y(&style, 8);
+
+    lv_style_set_outline_opa(&style, LV_OPA_COVER);
+    lv_style_set_outline_color(&style, lv_palette_main(LV_PALETTE_BLUE));
+
+    lv_style_set_text_color(&style, lv_color_white());
+    lv_style_set_pad_all(&style, 10);
+  
+    /*Init the pressed style*/
+    static lv_style_t style_pr;
+    lv_style_init(&style_pr);
+
+    /*Add a large outline when pressed*/
+    lv_style_set_outline_width(&style_pr, 30);
+    lv_style_set_outline_opa(&style_pr, LV_OPA_TRANSP);
+
+    lv_style_set_translate_y(&style_pr, 5);
+    lv_style_set_shadow_offset_y(&style_pr, 3);
+    lv_style_set_bg_color(&style_pr, lv_palette_darken(LV_PALETTE_BLUE, 2));
+    lv_style_set_bg_grad_color(&style_pr, lv_palette_darken(LV_PALETTE_BLUE, 4));
+
+    /*Add a transition to the outline*/
+    static lv_style_transition_dsc_t trans;
+    static lv_style_prop_t props[] = {LV_STYLE_OUTLINE_WIDTH, LV_STYLE_OUTLINE_OPA, 0};
+    lv_style_transition_dsc_init(&trans, props, lv_anim_path_linear, 300, 0, NULL);
+
+    lv_style_set_transition(&style_pr, &trans);
+
+
   lv_obj_t * btn1 = lv_btn_create(lv_scr_act());
   lv_obj_add_event_cb(btn1, event_handler_btn1, LV_EVENT_CLICKED, NULL);
-  lv_obj_align(btn1, LV_ALIGN_TOP_LEFT, 0, 0);
-  
+   lv_obj_add_flag(btn1, LV_OBJ_FLAG_CHECKABLE);
+  lv_obj_align(btn1, LV_ALIGN_TOP_LEFT, 5, 5);
+   lv_obj_set_height(btn1,145);
+  lv_obj_set_width(btn1, 195);
+      lv_obj_add_style(btn1, &style, 0);
+
+    lv_obj_add_style(btn1, &style_pr, LV_STATE_PRESSED);
   // Create a label for the button
   lv_obj_t * btn_label = lv_label_create(btn1);
-  lv_label_set_text(btn_label, "\xF0\x9F\x8C\xAC Fan");
+  lv_label_set_text(btn_label,"Fan 1");
+  
   lv_obj_center(btn_label);
-  lv_obj_set_height(btn1,100);
-  lv_obj_set_width(btn1, 100);
+
+  lv_obj_t * btn2 = lv_btn_create(lv_scr_act());
+  lv_obj_add_event_cb(btn2, event_handler_btn2, LV_EVENT_CLICKED, NULL);
+  lv_obj_align(btn2, LV_ALIGN_BOTTOM_LEFT, 5, -5);
+   lv_obj_set_height(btn2,143);
+  lv_obj_set_width(btn2, 195);
+  
+  // Create a label for the button
+  lv_obj_t * btn_label2 = lv_label_create(btn2);
+  lv_label_set_text(btn_label2,"Fan 2");
+  lv_obj_center(btn_label2);
+   lv_obj_add_style(btn2, &style, 0);
+
+    lv_obj_add_style(btn2, &style_pr, LV_STATE_PRESSED);
+
+  lv_obj_t * btn3 = lv_btn_create(lv_scr_act());
+  lv_obj_add_event_cb(btn3, event_handler_btn3, LV_EVENT_CLICKED, NULL);
+     lv_obj_add_flag(btn3, LV_OBJ_FLAG_CHECKABLE);
+
+  lv_obj_align(btn3, LV_ALIGN_TOP_RIGHT, -5, 5);
+    lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
+
+   lv_obj_set_height(btn3,143);
+  lv_obj_set_width(btn3,195);
+  // Create a label for the button
+  lv_obj_t * btn_label3 = lv_label_create(btn3);
+  lv_label_set_text(btn_label3,"Fan 3");
+  lv_obj_center(btn_label3);
+   lv_obj_add_style(btn3, &style, 0);
+
+    lv_obj_add_style(btn3, &style_pr, LV_STATE_PRESSED);
+
+   lv_obj_t * btn4 = lv_btn_create(lv_scr_act());
+  lv_obj_add_event_cb(btn4, event_handler_btn4, LV_EVENT_CLICKED, NULL);
+     lv_obj_add_flag(btn4, LV_OBJ_FLAG_CHECKABLE);
+
+  lv_obj_align(btn4, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
+   lv_obj_set_height(btn4,143);
+  lv_obj_set_width(btn4, 195);
+  // Create a label for the button
+  lv_obj_t * btn_label4 = lv_label_create(btn4);
+  lv_label_set_text(btn_label4,"Fan 4");
+  lv_obj_center(btn_label4);
+   lv_obj_add_style(btn4, &style, 0);
+
+    lv_obj_add_style(btn4, &style_pr, LV_STATE_PRESSED);
+
+ 
 
 }
+  
   
 
 
