@@ -1,15 +1,27 @@
-#include <lvgl.h>
-#if !defined LV_SYMBOL_AUDIO
-#define LV_SYMBOL_AUDIO           "\xEF\x80\x81" /*61441, 0xF001*/
-#endif
+
 /*  Install the "TFT_eSPI" library by Bodmer to interface with the TFT Display - https://github.com/Bodmer/TFT_eSPI
     *** IMPORTANT: User_Setup.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
+//#define ILI9488_DRIVER
+#ifdef TFTILI9341
+  #define ILI9341_DRIVER       // Generic driver for common displays
+  #define SCREEN_WIDTH 320
+  #define SCREEN_HEIGHT 240
+  #define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
+#else
+  #define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if 
+  #define SCREEN_WIDTH 480
+  #define SCREEN_HEIGHT 320
+  #define TOUCH_CS 21     // Chip select pin (T_CS) of touch screen
+#endif
 #include <TFT_eSPI.h>
+#include <lvgl.h>
 
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
 #include <XPT2046_Touchscreen.h>
+
+
 
 // Touchscreen pins
 #define XPT2046_IRQ 36   // T_IRQ
@@ -21,8 +33,7 @@
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+
 
 // Touchscreen coordinates: (x, y) and pressure (z)
 int x, y, z;
@@ -117,7 +128,7 @@ void setup() {
   // Start LVGL
   lv_init();
   // Register print function for debugging
-  lv_log_register_print_cb(log_print);
+  //lv_log_register_print_cb(log_print);
 
   // Start the SPI for the touchscreen and init the touchscreen
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
