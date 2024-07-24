@@ -3,22 +3,8 @@
     *** IMPORTANT: User_Setup.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
-//#define ILI9488_DRIVER
 
-#ifdef TFTILI9341
-  //#define ILI9341_2_DRIVER       // Generic driver for common displays
-  #define SCREEN_WIDTH 320
-  #define SCREEN_HEIGHT 240
-  #define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
-#else
-  #define ILI9488_DRIVER     // WARNING: Do not connect ILI9488 display SDO to MISO if 
-  #define SCREEN_WIDTH 480
-  #define SCREEN_HEIGHT 320
-  #define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
-#endif
-//#define TFT_WIDTH  SCREEN_WIDTH // ST7789 240 x 240 and 240 x 320
-//#define TFT_HEIGHT SCREEN_HEIGHT // ST7789 240 x 320
-
+#include "mconfig.h"
 #include <TFT_eSPI.h>
 #include <lvgl.h>
 
