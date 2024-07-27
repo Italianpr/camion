@@ -7,57 +7,40 @@
 
 lv_display_t *display;
 
-/*Declare a buffer for 1/10 screen size*/
-//#define BYTE_PER_PIXEL (LV_COLOR_FORMAT_GET_SIZE(LV_COLOR_FORMAT_RGB565)) /*will be 2 for RGB565 */
-//#define BYTE_PER_PIXEL 1 /*will be 2 for RGB565 */
-//static uint8_t buf1[MY_DISP_HOR_RES * MY_DISP_VER_RES / 10 * BYTE_PER_PIXEL];
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t buf1[DRAW_BUF_SIZE / 4];
 
-/*void my_disp_flush(lv_display_t * disp, const lv_area_t * area, lv_color_t * color_p)
-{
-    ili9488_flush(disp, area, color_p);
-    int32_t x, y;
-    /*It's a very slow but simple implementation.
-     *`set_pixel` needs to be written by you to a set pixel on the screen* /
-    for(y = area->y1; y <= area->y2; y++) {
-        for(x = area->x1; x <= area->x2; x++) {
-            set_pixel(x, y, *color_p);
-            color_p++;
-        }
-    }
-
-    lv_display_flush_ready(disp);         /* Indicate you are ready with the flushing* /
-}*/
-lv_obj_t * scr1;
-lv_obj_t * scr2;
 void setup(){
     Serial.begin(9600);
     lv_init();
     lv_tick_set_cb(xTaskGetTickCount);
-    /*display = lv_display_create(SCREEN_WIDTH, SCREEN_HEIGHT);
-    lv_display_set_buffers(display, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);  /*Initialize the display buffer.*/
+    
     display = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, buf1, sizeof(buf1));
-    //lv_display_set_flush_cb(display, my_disp_flush);
-    scr1 = lv_obj_create(NULL);//lv_scr_act();//lv_screen_active();//lv_obj_create(NULL);
+    
     static lv_style_t scrstyle;
     lv_style_init(&scrstyle);
-    lv_color_t color =lv_color_hex(0x390bde);
+    lv_color_t color =lv_color_hex(0x003a57);
     lv_style_set_bg_color(&scrstyle, color);
-    lv_obj_add_style(scr1, &scrstyle, 0);
-    //lv_obj_set_style_bg_grad_color(scr1, {255, 0, 0}, 10);
-    lv_screen_load(scr1);
+    lv_obj_t *scr1 = lv_scr_act();
+    lv_obj_add_style(scr1, &scrstyle, LV_PART_MAIN);
+    
+    /*Change the active screen's background color*/
+    //lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x003a57), LV_PART_MAIN);
+
+    /*Create a white label, set its text and align it to the center*/
+    // lv_obj_t * label = lv_label_create(lv_screen_active());
+    // lv_label_set_text(label, "Hello world");
+    // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+    // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    static lv_style_t lbstyle;
+    lv_style_init(&lbstyle);
+    lv_style_set_bg_color(&lbstyle, lv_color_hex(0xff0000));
+
+    lv_obj_t *label = lv_label_create(scr1);
+    lv_label_set_text(label, "Hello  word");
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_style(label, &lbstyle, LV_PART_MAIN);
     Serial.println("Testing tft screen1");
-    delay(5000);
-    scr2 = lv_obj_create(NULL);//lv_scr_act();//lv_screen_active();//lv_obj_create(NULL);
-    static lv_style_t scrstyle2;
-    lv_style_init(&scrstyle2);
-    lv_color_t color2 =lv_color_hex(0xe5eb34);
-    lv_style_set_bg_color(&scrstyle2, color2);
-    lv_obj_add_style(scr2, &scrstyle2, 0);
-    //lv_obj_set_style_bg_grad_color(scr1, {255, 0, 0}, 10);
-    lv_screen_load(scr2);
-    Serial.println("Testing tft screen2");
 }
 unsigned long start = 0;
 const unsigned long delayms = 5000;
@@ -68,11 +51,11 @@ void loop(){
     lv_task_handler();  // let the GUI do its work
     lv_tick_inc(5);     // tell LVGL how much time has passed
     delay(5);
-    if (millis() - start > delayms){
-        lv_screen_load((isscr1)?scr1:scr2);
-        start = millis();
-        Serial.print("Testing tft screen");
-        Serial.println((isscr1)?"1":"2");
-        isscr1 = !isscr1;
-    }
+    // if (millis() - start > delayms){
+    //     lv_screen_load((isscr1)?scr1:scr2);
+    //     start = millis();
+    //     Serial.print("Testing tft screen");
+    //     Serial.println((isscr1)?"1":"2");
+    //     isscr1 = !isscr1;
+    // }
 }
